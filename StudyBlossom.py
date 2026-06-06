@@ -4,7 +4,7 @@ import os
 import time
 import random
 from datetime import datetime, date, timedelta
-import google.generativeai as genai
+from google import genai
 
 # ── Page config ──────────────────────────────────────────────────────────────
 st.set_page_config(
@@ -761,8 +761,7 @@ elif nav == "🃏 Flashcards & Quizzes":
                             st.error("Please set your GEMINI_API_KEY! See the README for instructions.")
                             st.stop()
 
-                        genai.configure(api_key=api_key)
-                        model = genai.GenerativeModel("gemini-1.5-flash")
+                        client = genai.Client(api_key=api_key)
 
                         prompt = f"""You are a helpful study assistant for a high school student.
 Given the following study material about {upload_subject}, create:
@@ -790,7 +789,10 @@ Respond ONLY with valid JSON in this exact format, no markdown fences:
 }}
 The "correct" field is the 0-based index of the correct option."""
 
-                        response = model.generate_content(prompt)
+                        response = client.models.generate_content(
+                            model="gemini-2.0-flash",
+                            contents=prompt
+                        )
                         result_text = response.text.strip()
                         if result_text.startswith("```"):
                             result_text = result_text.split("```")[1]
